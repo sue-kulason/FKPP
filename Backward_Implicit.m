@@ -1,9 +1,9 @@
-function [dJ,dcon,dconeq] = Backward_Implicit(theta,a,b,rho_obs,n,v,f,phi,lambda0,c,dt,N,M,w)
+function [dJ,dcon,dconeq] = Backward_Implicit(theta,a,b,rho_obs,n,v,f,phi,lambda0,dt,N,M,w)
 
 kappa = theta(1);
 D = theta(2);
 lambda1 = theta(3);
-mu = theta(end);
+mu = theta(end-M+1:end);
 
 %Step 0a: Calculate Mass and Stiffness matrices
 MM = calculate_M(v,f,phi);
@@ -20,7 +20,7 @@ pb = zeros(N,M);
 
 %pa(N,:) = 0;
 for i = 1:1:length(n)
-    rho_max_aged = (mu*c) .* exp(lambda0*dt*(double(n(i))-1));
+    rho_max_aged = (mu) .* exp(lambda0*dt*(double(n(i))-1));
     pb(n(i),:) = -2 * (rho_max_aged ./ (onesm + exp(b(n(i),:))) - rho_obs(i,:)) .* (rho_max_aged .* exp(b(n(i),:)) ./  (onesm + exp(b(n(i),:))).^2) ;
 end
 
@@ -64,9 +64,9 @@ dJ(6) = sum(pb(1,:));
 
 %mu
 for i = 1:length(n)
-    numerator(i,:) = mu*onesm ;
-    denominator(i,:) = c .* exp(lambda0*dt*(double(n(i))-1)) ./ ( onesm +exp(b(int16(n(i)),:)) );
+    numerator(i,:) = mu ;
+    denominator(i,:) =  exp(lambda0*dt*(double(n(i))-1)) ./ ( onesm +exp(b(int16(n(i)),:)) );
 end
-dJ(7) = 2* sum(sum( numerator.*(denominator.^2) - rho_obs.*denominator ));
+dJ(7:7+M-1) = 2* sum( numerator.*(denominator.^2) - rho_obs.*denominator );
 
 end
