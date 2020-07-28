@@ -1,5 +1,5 @@
 % User Input
-subject = 'example/subject.mat';
+subject = 'example/test7.mat';
 initialguess = 'example/initialguess.mat';
 resultDir = 'example/';
 
